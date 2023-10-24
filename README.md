@@ -1,7 +1,9 @@
 ## Keywords Sheets ##
 
 **Note: green colored keywords already have posts generated**
-  For horsebackhaven.com - https://docs.google.com/spreadsheets/d/1uckoTKTb5VabqypkrKacOuScXJR6UjnSGSpOM99kc3I/edit?usp=sharing
+<br/>
+<br/>
+For horsebackhaven.com - https://docs.google.com/spreadsheets/d/1uckoTKTb5VabqypkrKacOuScXJR6UjnSGSpOM99kc3I/edit?usp=sharing
 
 ## To each site add code snippet below to make yoast description equal to the excerpt:
 
