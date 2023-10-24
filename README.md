@@ -1,4 +1,4 @@
-## Use code below to make yoast description equal to the excerpt:
+## To each sitre add code snippet below to make yoast description equal to the excerpt:
 
 ```
 function prefix_filter_description_example($description)
