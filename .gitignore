@@ -1,3 +1,6 @@
 .env
 featured-images
 node_modules/
+deets.zip
+.DS_Store
+image-apis/

@@ -1,34 +1,61 @@
 import { searchBingImage } from './bingImage.js';
 import { searchGoogleImage } from './googleImgSearch.js';
-import config from './config.json' assert { type: 'json' };
+import { fetchUnsplashImage } from './image-apis/otherApiSearch.js';
+import { fetchPexelsImage } from './image-apis/otherApiSearch.js';
+import { fetchPixabayImage } from './image-apis/otherApiSearch.js';
 
 const ImgGenerator = {
   BING: 'bing',
   GOOGLE: 'google',
-  DALLE: 'dalle'
+  DALLE: 'dalle',
+  UNSPLASH: 'unsplash',
+  PIXABAY: 'pixabay',
+  PEXELS: 'pexels'
 };
 
-async function generateImageHTML(topic, ImgGeneratorType) {
-  let image = '';
-
+async function retrieveImageData(ImgGeneratorType, key) {
   switch (ImgGeneratorType) {
     case ImgGenerator.BING:
-      image = await searchBingImage(topic, true);
-      if (!image || !image.url) {
-        image = await searchBingImage(config.key, true);
-      }
-      break;
+      return searchBingImage(key, true);
     case ImgGenerator.GOOGLE:
-      image = await searchGoogleImage(topic);
-      if (!image || !image.url) {
-        image = await searchGoogleImage(config.key);
-      }
-      break;
+      return searchGoogleImage(key);
+    case ImgGenerator.UNSPLASH:
+      return fetchUnsplashImage(key);
+    case ImgGenerator.PIXABAY:
+      return fetchPixabayImage(key);
+    case ImgGenerator.PEXELS:
+      return fetchPexelsImage(key);
+    default:
+      throw new Error('Invalid ImgGeneratorType provided');
   }
+}
+async function generateImageHTML(ImgGeneratorType, key) {
+  const image = await retrieveImageData(ImgGeneratorType, key);
 
-  const imgHTML = `<img src="${image.url}" alt="${image.alt}" />`;
+  // Only include credit if it exists
+  const creditHTML = image.credit
+    ? `<figcaption class="wp-element-caption">${image.credit}</figcaption>`
+    : '';
+
+  const imgHTML =
+    `<figure class="wp-block-image size-large">` +
+    `<img src="${image.url}" alt="${image.alt}" title="${image.alt}">` +
+    `${creditHTML}</figure>`;
 
   return imgHTML;
 }
 
-export { generateImageHTML, ImgGenerator };
+function formatImageTitle(inputString) {
+  // Remove special characters and convert spaces to hyphens
+  const formattedString = inputString
+    .toLowerCase() // Convert to lowercase
+    .replace(/[^\w\s]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Remove consecutive hyphens
+    .trim() // Trim leading and trailing spaces and hyphens
+    .replace(/-$/, ''); // Remove the last hyphen if it exists
+
+  return formattedString;
+}
+
+export { generateImageHTML, ImgGenerator, retrieveImageData, formatImageTitle };

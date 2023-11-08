@@ -1,7 +1,6 @@
 import WPAPI from 'wpapi';
 import * as dotenv from 'dotenv';
 import { TYPE, selectAdditionalInfo } from './selectAdditionalInfo.js';
-import config from './config.json' assert { type: 'json' };
 import axios from 'axios';
 import fs from 'fs';
 import path, { dirname } from 'path';
@@ -15,7 +14,7 @@ const wp = new WPAPI({
   password: process.env.SITE_PASSWORD
 });
 
-async function fetchAndProcessCategories() {
+async function fetchAndProcessCategories(key) {
   try {
     const cats = await wp.categories().get();
     let categories = '';
@@ -29,7 +28,7 @@ async function fetchAndProcessCategories() {
     });
 
     const catResult = await selectAdditionalInfo(
-      config.key,
+      key,
       TYPE.CATEGORY,
       categories
     );
@@ -42,13 +41,11 @@ async function fetchAndProcessCategories() {
   }
 }
 
-async function fetchAndProcessAuthors() {
+async function fetchAndProcessAuthors(nonAuthorUsers, key) {
   try {
     let authors = await wp.users().get();
 
-    authors = authors.filter(
-      (author) => !config.nonAuthorUsers.includes(author.name)
-    );
+    authors = authors.filter((author) => !nonAuthorUsers.includes(author.name));
 
     let authorPrompt = '';
 
@@ -62,7 +59,7 @@ async function fetchAndProcessAuthors() {
         `------\n`;
     });
 
-    return await selectAdditionalInfo(config.key, TYPE.AUTHOR, authorPrompt);
+    return await selectAdditionalInfo(key, TYPE.AUTHOR, authorPrompt);
   } catch (error) {
     console.error('An error occurred:', error);
   }
@@ -114,14 +111,14 @@ async function downloadAndUploadImage(image) {
   }
 }
 
-async function uploadPostToWP(postInfo) {
+async function uploadPostToWP(postInfo, postStatus) {
   try {
     await wp
       .posts()
       .create({
         title: postInfo.title,
         content: postInfo.content,
-        status: config.postStatus,
+        status: postStatus,
         categories: [postInfo.categoryID],
         excerpt: postInfo.excerpt,
         author: postInfo.authorID,
@@ -136,9 +133,14 @@ async function uploadPostToWP(postInfo) {
   }
 }
 
-async function processUploadPostToWP(postInfo) {
-  const categoryID = await fetchAndProcessCategories();
-  const authorID = await fetchAndProcessAuthors();
+async function processUploadPostToWP(
+  postInfo,
+  key,
+  nonAuthorUsers,
+  postStatus
+) {
+  const categoryID = await fetchAndProcessCategories(key);
+  const authorID = await fetchAndProcessAuthors(nonAuthorUsers, key);
   const featImageID = await downloadAndUploadImage(postInfo.featuredImage);
 
   const finalPostInfo = {
@@ -148,7 +150,7 @@ async function processUploadPostToWP(postInfo) {
     featImageID
   };
 
-  uploadPostToWP(finalPostInfo);
+  uploadPostToWP(finalPostInfo, postStatus);
 }
 
 export { processUploadPostToWP };

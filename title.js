@@ -9,15 +9,14 @@ const openai = new OpenAI({
 
 function createTitlePrompt(imagine) {
   return (
-    `Acting as an engaging content writer, create 1 ` +
-    `unique blog post title that includes the keyword "${imagine}" ` +
-    `in the text. Try to have the keyword at the beginning of the title, ` +
-    `but if it doesn't work, don't sacrifice the quality and place it where it fits.` +
-    `The length should be between 50-60 characters MAXIMUM.` +
-    `Title must be plain text, no quotation marks around it.`
+    `As an engaging content writer, craft a unique blog post title ` +
+    `with the following guidelines:\n` +
+    `- The title should include the keyword "${imagine}".\n` +
+    `- Ideally, place the keyword at the beginning, but prioritize quality.\n` +
+    `- The title must be between 50-60 characters MAX.\n` +
+    `- Provide the title in plain text without quotation marks.`
   );
 }
-
 async function generateTitle(imagine) {
   const prompt = createTitlePrompt(imagine);
 

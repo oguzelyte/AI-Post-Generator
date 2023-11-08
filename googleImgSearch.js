@@ -1,6 +1,7 @@
 import { google } from 'googleapis';
 const customsearch = google.customsearch('v1');
 import dotenv from 'dotenv';
+import { formatImageTitle } from './imageHelpers.js';
 dotenv.config();
 
 function getRandomNumber() {
@@ -10,20 +11,7 @@ function getRandomNumber() {
   return randomNumber;
 }
 
-function formatImageTitle(inputString) {
-  // Remove special characters and convert spaces to hyphens
-  const formattedString = inputString
-    .toLowerCase() // Convert to lowercase
-    .replace(/[^\w\s]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Remove consecutive hyphens
-    .trim(); // Trim leading and trailing spaces and hyphens
-
-  return formattedString;
-}
-
 async function searchGoogleImage(query) {
-  console.log(query);
   try {
     const res = await customsearch.cse.list({
       cx: process.env.GOOGLE_CX,
