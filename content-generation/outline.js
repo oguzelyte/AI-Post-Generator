@@ -1,27 +1,22 @@
 import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
+import { getPromptModule } from '../utils/prompt-helpers.js';
 
 dotenv.config();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
+  apiKey: process.env.OPENAI_API_KEY
 });
 
-function createRelatedKeysPrompt(key) {
-  return (
-    `Suggest 3 related keyword phrases that customers who searched for ` +
-    `"${key}" may also search for.`
-  );
-}
+async function generateOutline(title, key, numOfParagraphs) {
+  const promptModule = await getPromptModule();
 
-async function generateRelatedKeys(key) {
-  const prompt = createRelatedKeysPrompt(key);
+  const prompt = promptModule.createOutlinePrompt(title, key, numOfParagraphs);
 
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
-      max_tokens: 4000,
-      temperature: 0.7,
+      temperature: 0.5,
       messages: [{ role: 'user', content: prompt }]
     });
 
@@ -33,4 +28,4 @@ async function generateRelatedKeys(key) {
   }
 }
 
-export { generateRelatedKeys };
+export { generateOutline };

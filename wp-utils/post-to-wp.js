@@ -1,6 +1,6 @@
 import WPAPI from 'wpapi';
 import * as dotenv from 'dotenv';
-import { TYPE, selectAdditionalInfo } from './selectAdditionalInfo.js';
+import { TYPE, selectAdditionalInfo } from './select-additional-info.js';
 import axios from 'axios';
 import fs from 'fs';
 import path, { dirname } from 'path';
@@ -89,6 +89,7 @@ async function downloadAndUploadImage(image) {
 
     const imagePath = path.join(
       __dirname,
+      '..',
       'featured-images',
       `${image.title}.${extension}`
     );

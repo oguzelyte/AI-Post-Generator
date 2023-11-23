@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
+import { getPromptModule } from '../utils/prompt-helpers.js';
 
 dotenv.config();
 
@@ -7,19 +8,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY // This is also the default, can be omitted
 });
 
-function createExcerptPrompt(key, content, relatedKeys) {
-  return (
-    `As a seo writer, create an excerpt that uses the keyword "${key}. Try to reference it early in the excerpt."` +
-    `Try to include 1-2 of the related keywords: "${relatedKeys}".\n` +
-    `The excerpt has to summarize this content: "${content}.\n` +
-    `The excerpt has to pique curiosity and act as a modest clickbait.\n` +
-    `Avoid starting with the word 'discover'.\n` +
-    `The length should be between 150-160 characters MAXIMUM.`
-  );
-}
+async function generateExcerpt(key, content) {
+  const promptModule = await getPromptModule();
 
-async function generateExcerpt(key, content, relatedKeys) {
-  const prompt = createExcerptPrompt(key, content, relatedKeys);
+  const prompt = promptModule.createExcerptPrompt(key, content);
 
   try {
     const completion = await openai.chat.completions.create({

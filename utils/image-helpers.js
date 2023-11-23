@@ -1,8 +1,8 @@
-import { searchBingImage } from './bingImage.js';
-import { searchGoogleImage } from './googleImgSearch.js';
-import { fetchUnsplashImage } from './image-apis/otherApiSearch.js';
-import { fetchPexelsImage } from './image-apis/otherApiSearch.js';
-import { fetchPixabayImage } from './image-apis/otherApiSearch.js';
+import { searchBingImage } from '../image-apis/bing-image.js';
+import { searchGoogleImage } from '../image-apis/google-img-search.js';
+import { fetchUnsplashImage } from '../image-apis/other-api-search.js';
+import { fetchPexelsImage } from '../image-apis/other-api-search.js';
+import { fetchPixabayImage } from '../image-apis/other-api-search.js';
 
 const ImgGenerator = {
   BING: 'bing',

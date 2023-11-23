@@ -1,16 +1,15 @@
-import { generateContent } from './content.js';
-import { generateTitle } from './title.js';
-import { generateRelatedKeys } from './relatedKeys.js';
-import { generateOutline } from './outline.js';
-import { generateExcerpt } from './excerpt.js';
-import config from './config.json' assert { type: 'json' };
+import { generateContent } from './content-generation/content.js';
+import { generateTitle } from './content-generation/title.js';
+import { generateOutline } from './content-generation/outline.js';
+import { generateExcerpt } from './wp-utils/excerpt.js';
+import config from './config/config.json' assert { type: 'json' };
 import {
   ImgGenerator,
   generateImageHTML,
   retrieveImageData
-} from './imageHelpers.js';
-import { createH2 } from './textHelpers.js';
-import { processUploadPostToWP } from './post-to-wp.js';
+} from './utils/image-helpers.js';
+import { createH2 } from './utils/text-helpers.js';
+import { processUploadPostToWP } from './wp-utils/post-to-wp.js';
 
 const imageSources = [
   ImgGenerator.UNSPLASH,
@@ -21,37 +20,29 @@ const imageSources = [
 async function generatePostForSingleKey(keyObj, postNumber) {
   console.log(`Post ${postNumber} is being generated... Key: ${keyObj.key}`);
   try {
-    // console.log('Generating title, please wait...');
     const title = await generateTitle(keyObj.key);
-    // console.log('Title generated!');
 
-    // console.log('Generating outline, please wait...');
-    const outline = await generateOutline(
+    const topics = await generateOutline(
       title,
       keyObj.key,
       config.numOfParagraphs
     );
 
-    // console.log('Outline generated!\n');
-    const topics = outline.split(/\n+/);
-    // console.log('Outline is: \n' + outline + '\n');
-    // console.log('Topics are: \n' + topics + '\n');
+    const topicsJson = JSON.parse(topics);
 
     let content = '';
 
-    // console.log('Generating content, please wait...');
+    for (let index = 0; index < topicsJson.outline.length; index++) {
+      const topic = topicsJson.outline[index];
 
-    for (const [index, topic] of topics.entries()) {
-      if (!topic.trim()) {
-        continue;
-      }
       const paragraph = await generateContent(
         title,
-        topic,
-        outline,
+        topic.text,
+        topics,
         keyObj.key,
         content
       );
+
       let topicImage = '';
 
       if (index % 2 !== 0) {
@@ -60,25 +51,15 @@ async function generatePostForSingleKey(keyObj, postNumber) {
         topicImage = await generateImageHTML(randomSource, keyObj.shortKey);
       }
 
-      content += topicImage + createH2(topic) + paragraph + '\n\n';
-      // console.log(`Paragraph ${index + 1} generation done.`);
+      content += topicImage + createH2(topic.text) + paragraph + '\n\n';
     }
-    // console.log('Content generated!');
 
-    // console.log('Generating related keys, please wait...');
-    const relatedKeys = await generateRelatedKeys(keyObj.key);
-    // console.log('Related keys generated!');
+    const excerpt = await generateExcerpt(keyObj.key, content);
 
-    // console.log('Generating excerpt keys, please wait...');
-    const excerpt = await generateExcerpt(keyObj.key, content, relatedKeys);
-    // console.log('Excerpt generated!');
-
-    // console.log('Generating featured image, please wait...');
     const featuredImage = await retrieveImageData(
       ImgGenerator.PIXABAY,
       keyObj.shortKey
     );
-    // console.log('Featured image generated!');
 
     console.log(`Uploading post ${postNumber} to wp...`);
 
@@ -88,9 +69,8 @@ async function generatePostForSingleKey(keyObj, postNumber) {
       config.nonAuthorUsers,
       config.postStatus
     );
-    // console.log(`Post ${postNumber} finished generating.`);
   } catch (error) {
-    // console.error(`Error generating post for key ${keyObj.key}:`, error);
+    console.error(`Error generating post for key ${keyObj.key}:`, error);
   }
 }
 async function generateMultiplePosts() {
