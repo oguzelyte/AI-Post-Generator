@@ -14,6 +14,8 @@ const wp = new WPAPI({
   password: process.env.SITE_PASSWORD
 });
 
+console.log('whatever');
+
 async function fetchAndProcessCategories(key) {
   try {
     const cats = await wp.categories().get();
