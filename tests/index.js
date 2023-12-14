@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { titleSystemPrompt1 } from './titles.js';
+import { titleSystemPrompt5 } from './titles.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -28,17 +28,17 @@ async function chat3(
 }
 
 async function generateTitle(keyword) {
-  const systemPrompt = titleSystemPrompt1;
+  const systemPrompt = titleSystemPrompt5;
 
   // const prompt = `
   //  You are an expert copywriter who writes catchy titles for blog posts. You have a Informative tone of voice. You have a Conversational writing style. Write a catchy blog post title with a hook for the topic "${keyword}". The titles should be written in the english language. The titles should be less than 60 characters. The titles should include the wordsfrom the topic "${keyword}". Do not use single quotes, double quotes or any other enclosing characters. Do not self reference. Do not explain what you are doing.
   // `;
 
-  const prompt = `Generate blog post title based on this keyword: "${keyword}"`;
+  const prompt = `Generate only 1 blog post title (50-60 characters long) based on this keyword: "${keyword}"`;
 
   console.info('Generating title...');
 
-  return await chat3(prompt, 1, systemPrompt);
+  return await chat3(prompt, 0.8, systemPrompt);
 }
 
 async function generateDescription(title) {

@@ -21,5 +21,12 @@
     "node-fetch": "^3.3.2",
     "openai": "^4.11.1",
     "wpapi": "^1.2.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.4.0",
+    "eslint-plugin-promise": "^6.1.1"
   }
 }
