@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { titleSystemPrompt1 } from './titles.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -7,11 +8,14 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-async function chat3(prompt, temp = 0.5) {
-  const person = 'George Orwell';
-  const system_message = `You are a helpful assistant. You immitate the writing style of ${person}, but don't reference him or his works in any way`;
+async function chat3(
+  prompt,
+  temp = 0.5,
+  system_message = 'You are a helpful assistant'
+) {
   const completion = await openai.chat.completions.create({
-    model: 'gpt-3.5-turbo',
+    // model: 'gpt-3.5-turbo',
+    model: 'gpt-4-1106-preview',
     temperature: temp,
     messages: [
       { role: 'system', content: system_message },
@@ -24,13 +28,17 @@ async function chat3(prompt, temp = 0.5) {
 }
 
 async function generateTitle(keyword) {
-  const prompt = `
- You are an expert copywriter who writes catchy titles for blog posts. You have a Informative tone of voice. You have a Conversational writing style. Write a catchy blog post title with a hook for the topic "${keyword}". The titles should be written in the english language. The titles should be less than 60 characters. The titles should include the wordsfrom the topic "${keyword}". Do not use single quotes, double quotes or any other enclosing characters. Do not self reference. Do not explain what you are doing. 
-`;
+  const systemPrompt = titleSystemPrompt1;
+
+  // const prompt = `
+  //  You are an expert copywriter who writes catchy titles for blog posts. You have a Informative tone of voice. You have a Conversational writing style. Write a catchy blog post title with a hook for the topic "${keyword}". The titles should be written in the english language. The titles should be less than 60 characters. The titles should include the wordsfrom the topic "${keyword}". Do not use single quotes, double quotes or any other enclosing characters. Do not self reference. Do not explain what you are doing.
+  // `;
+
+  const prompt = `Generate blog post title based on this keyword: "${keyword}"`;
 
   console.info('Generating title...');
 
-  return await chat3(prompt, 1);
+  return await chat3(prompt, 1, systemPrompt);
 }
 
 async function generateDescription(title) {
@@ -61,14 +69,53 @@ async function generatePost(outline) {
   return await chat3(prompt, 1);
 }
 
-const keyword = 'is horse riding a sport';
+async function generateIntroduction(title) {
+  const system_message = `
+Your only purpose is to write blog article introductions from a given title.
+Use short paragraphs instead of big walls of text
+Break up long sentences because they’re hard to follow
+Write in conversational tone
+When writing an introduction use the 'APP formula:
+
+[A]lign yourself with the reader’s problem
+[P]resent your post as the solution to that problem
+[P]roof as to why they should trust you
+
+Example:
+
+“(Looking to grow you YT channel and attract more views? [Align]) (The ‘trick’ is to target topics with search demand. [Present])
+
+(This is the approach that helped us grow our YT channel from ~10,000 to over 200,000 monthly views in around a year. [Proof])"
+
+
+This is only an example, your introductions should be longer and relavent to the provided title and topic.
+`;
+
+  const prompt = `Generate blog post introduction for this title: "${title}"`;
+
+  console.log('Generating introduction...');
+
+  return await chat3(prompt, 0.8, system_message);
+}
+
+const keyword = `kayaking for beginners`;
+
+const side_keywords = `kayaking,
+how to kayak,
+how do you kayak,
+lake kayaking,
+kayak for beginners`;
 
 const title = await generateTitle(keyword);
-const description = await generateDescription(title);
-const outline = await generateOutline(title);
-const post = await generatePost(outline);
+// const introduction = await generateIntroduction(title);
 
-console.log('Title:\n', title);
-console.log('Description:\n', description);
-console.log('Outline:\n', outline);
-console.log('Post:\n', post);
+console.log(title);
+// console.log(introduction);
+// const description = await generateDescription(title);
+// const outline = await generateOutline(title);
+// const post = await generatePost(outline);
+
+// console.log('Title:\n', title);
+// console.log('Description:\n', description);
+// console.log('Outline:\n', outline);
+// console.log('Post:\n', post);
